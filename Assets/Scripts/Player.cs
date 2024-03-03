@@ -43,7 +43,6 @@ public class Player : MonoBehaviour
         isGrounded = Physics2D.Raycast(transform.position, Vector2.down, _groundCheckDistance,_whatIsGround);
 
         Debug.Log(isGrounded);
-
     }
 
     private void Flip_Handler()
@@ -69,14 +68,15 @@ public class Player : MonoBehaviour
             _isMoving = false;
         }
 
-        Debug.Log(_isMoving);
+        _player_Animator.SetFloat("yVelocity", _rb.velocity.y);
 
         _player_Animator.SetBool("isMoving", _isMoving);
+        _player_Animator.SetBool("isGrounded", isGrounded);
     }
 
     private void Jump()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded == true)
         {
             _rb.velocity = new Vector2(_rb.velocity.x, _jumpForce);
         }

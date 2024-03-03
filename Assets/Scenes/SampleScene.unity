@@ -332,7 +332,7 @@ GameObject:
   - component: {fileID: 952096992}
   - component: {fileID: 952096991}
   - component: {fileID: 952096993}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Platform
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -563,6 +563,10 @@ MonoBehaviour:
   _xMove: 0
   _moveSpeed: 5
   _jumpForce: 5
+  _groundCheckDistance: 1.15
+  _whatIsGround:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
