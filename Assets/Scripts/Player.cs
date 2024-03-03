@@ -12,6 +12,11 @@ public class Player : MonoBehaviour
     [SerializeField] private float _groundCheckDistance;
     [SerializeField] private LayerMask _whatIsGround;
 
+    [Header("Dash")]
+    [SerializeField] private float _dashTime;
+    [SerializeField] private float _dashDuration;
+    [SerializeField] private float _dashSpeed;
+
     private bool isGrounded;
 
     private Rigidbody2D _rb;
@@ -35,12 +40,28 @@ public class Player : MonoBehaviour
         Jump();
 
         Animation_Controller();
-      
+
         Flip_Handler();
 
+        RayCast_GroundCheck();
+
+
+        _dashTime -= Time.deltaTime;
+
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            _dashTime = _dashDuration;
+        }
+
+       
+
+    }
+
+    private void RayCast_GroundCheck()
+    {
         // Starting ,, kidr jane aa ,, kina distance chida ,, ke detect karna (using LayerMask) .......................  IMP  Simple ......
 
-        isGrounded = Physics2D.Raycast(transform.position, Vector2.down, _groundCheckDistance,_whatIsGround);
+        isGrounded = Physics2D.Raycast(transform.position, Vector2.down, _groundCheckDistance, _whatIsGround);
 
         Debug.Log(isGrounded);
     }
@@ -72,6 +93,7 @@ public class Player : MonoBehaviour
 
         _player_Animator.SetBool("isMoving", _isMoving);
         _player_Animator.SetBool("isGrounded", isGrounded);
+        _player_Animator.SetBool("isDashing", _dashTime > 0);
     }
 
     private void Jump()
@@ -86,7 +108,15 @@ public class Player : MonoBehaviour
     {
         _xMove = Input.GetAxisRaw("Horizontal");
 
-        _rb.velocity = new Vector2(_xMove * _moveSpeed, _rb.velocity.y); ;
+        if (_dashTime > 0)
+        {
+            _rb.velocity = new Vector2(_xMove * _dashSpeed, 0);
+        }
+
+        else
+        {
+            _rb.velocity = new Vector2(_xMove * _moveSpeed, _rb.velocity.y); ;
+        }
     }
 
     public void OnDrawGizmos()
