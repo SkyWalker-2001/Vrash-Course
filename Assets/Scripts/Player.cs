@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    // make a separate Input Function /////////////////////////////// Future ????
 
     [SerializeField] private float _xMove;
     [SerializeField] private float _moveSpeed;
@@ -16,6 +17,16 @@ public class Player : MonoBehaviour
     [SerializeField] private float _dashTime;
     [SerializeField] private float _dashDuration;
     [SerializeField] private float _dashSpeed;
+
+    [SerializeField] private float _dashLimitTimer;
+    [SerializeField] private float _dashLimitTime;
+
+    [Header("Attack")]
+    [SerializeField] private int _comboCounter;
+    [SerializeField] private bool _isAttacking;
+
+    [SerializeField] private float _combo_Window_Static_Time;
+    [SerializeField] private float _combo_Window_Timer;
 
     private bool isGrounded;
 
@@ -45,16 +56,43 @@ public class Player : MonoBehaviour
 
         RayCast_GroundCheck();
 
+        Dash_Mechanics();
+        AttackingEvent();
 
-        _dashTime -= Time.deltaTime;
+    }
 
-        if (Input.GetKeyDown(KeyCode.LeftShift))
-        {
-            _dashTime = _dashDuration;
-        }
-
+    private void AttackingEvent()
+    {
        
 
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (!isGrounded)
+            {
+                return;
+            }
+
+
+            _isAttacking = true;
+
+            _combo_Window_Timer = _combo_Window_Static_Time;
+
+        }
+
+        _combo_Window_Timer -= Time.deltaTime;
+    }
+
+    private void Dash_Mechanics()
+    {
+        _dashTime -= Time.deltaTime;
+        _dashLimitTimer -= Time.deltaTime;
+
+
+        if (Input.GetKeyDown(KeyCode.LeftShift) && _dashLimitTimer < 0 && !_isAttacking)
+        {
+            _dashLimitTimer = _dashLimitTime;
+            _dashTime = _dashDuration;
+        }
     }
 
     private void RayCast_GroundCheck()
@@ -64,6 +102,25 @@ public class Player : MonoBehaviour
         isGrounded = Physics2D.Raycast(transform.position, Vector2.down, _groundCheckDistance, _whatIsGround);
 
         Debug.Log(isGrounded);
+    }
+
+    public void Attacking_Anim_EventHandler()
+    {
+     
+        _isAttacking = false;
+
+        _comboCounter++;
+
+        if (_comboCounter > 2)
+        {
+            _comboCounter = 0;
+        }
+
+        if(_combo_Window_Timer < 0)
+        {
+            _comboCounter = 0;
+        }
+
     }
 
     private void Flip_Handler()
@@ -94,6 +151,8 @@ public class Player : MonoBehaviour
         _player_Animator.SetBool("isMoving", _isMoving);
         _player_Animator.SetBool("isGrounded", isGrounded);
         _player_Animator.SetBool("isDashing", _dashTime > 0);
+        _player_Animator.SetBool("isAttacking", _isAttacking);
+        _player_Animator.SetInteger("Attack_Combo", _comboCounter);
     }
 
     private void Jump()
@@ -108,7 +167,12 @@ public class Player : MonoBehaviour
     {
         _xMove = Input.GetAxisRaw("Horizontal");
 
-        if (_dashTime > 0)
+        if (_isAttacking)
+        {
+            _rb.velocity = new Vector2(0,0);
+        }
+
+        else if (_dashTime > 0)
         {
             _rb.velocity = new Vector2(_xMove * _dashSpeed, 0);
         }
